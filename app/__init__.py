@@ -21,7 +21,9 @@ def create_app():
     # Importa os modelos aqui para que o Flask-Migrate os detecte
     from app.models import User, Task  # certifique-se de que os modelos estão corretos
 
-    from app.views.tasks import tasks_bp 
+    from app.views.tasks import tasks_bp
+    from app.views.users import users_bp
     app.register_blueprint(tasks_bp, url_prefix='/api/tasks')
+    app.register_blueprint(users_bp, url_prefix='/api/users')
 
     return app
