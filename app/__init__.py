@@ -3,11 +3,13 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_marshmallow import Marshmallow
 from .config import Config
+from flask_jwt_extended import JWTManager
 
-# Inicialização sem passar o app aqui
+# Inicialização 
 db = SQLAlchemy()
 migrate = Migrate()
 ma = Marshmallow()
+jwt = JWTManager()
 
 def create_app():
     app = Flask(__name__)
@@ -26,4 +28,5 @@ def create_app():
     app.register_blueprint(tasks_bp, url_prefix='/api/tasks')
     app.register_blueprint(users_bp, url_prefix='/api/users')
 
+    jwt.init_app(app)
     return app

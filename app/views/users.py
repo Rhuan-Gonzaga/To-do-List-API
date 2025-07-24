@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app.models import User
 from datetime import datetime, timedelta
 from app.schemas import UserSchema
-import jwt
+from flask_jwt_extended import create_access_token
 from app import db
 
 users_bp = Blueprint('users', __name__)
@@ -39,16 +39,9 @@ def login():
     if not user or not check_password_hash(user.password_hash, data['password']):
         return jsonify({'message': 'Usuário ou senha inválidos'}), 401
         
-    #gerar token
-    payload ={
-        'user_id': user.id,
-        'exp': datetime.utcnow() + timedelta(hours=1) 
-    }
-
-    token = jwt.encode(payload, current_app.config['SECRET_KEY'], algorithm='HS256')
-
-    return jsonify({'token': token, 'username': user.username})
-
+    access_token = create_access_token(identity=user.id, expires_delta=timedelta(hours=1))
+    
+    return jsonify({'token': access_token, 'username': user.username}), 200
 
 
 
