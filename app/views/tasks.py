@@ -10,6 +10,21 @@ tasks_schema = TaskSchema()
 tasks_schema = TaskSchema(many=True)
 
 
+#get all
+@tasks_bp.route('/', methods=['GET'])
+@jwt_required()
+def get_tasks():
+    #data = request.get_json()
+    id = get_jwt_identity()
+
+    user = User.query.get(id)
+    if not user:
+        return jsonify({'message': 'Usuário não encontrado'}), 404
+
+    tasks = user.tasks
+    return jsonify(tasks_schema.dump(tasks))
+
+#create tasks
 @tasks_bp.route('/create', methods=['POST'])
 @jwt_required()
 def create_task():
