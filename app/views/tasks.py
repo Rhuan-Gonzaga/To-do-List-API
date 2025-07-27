@@ -94,4 +94,21 @@ def update_task(id):
     db.session.commit()
     return jsonify({'message': 'Tarefa atualizada'}), 200
 
+@tasks_bp.route('/delete/<int:id>', methods=['DELETE'])
+@jwt_required()
+def delete_task(id):
+    user_id = get_jwt_identity()
+    
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'message': 'Usuário não encontrado'}), 404
+
+    task = Task.query.join(Task.users).filter(Task.id == id, User.id == user_id).first()
+    if not task:
+        return jsonify({'message': 'Tarefa não encontrada ou não pertence a este usuário'}), 404
+
+    db.session.delete(task)
+    db.session.commit()
+
+    return jsonify({'message': 'Tarefa deletada com sucesso'}), 200
    
