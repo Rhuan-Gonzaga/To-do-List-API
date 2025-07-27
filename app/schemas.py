@@ -18,7 +18,7 @@ class TaskSchema(SQLAlchemySchema):
     status = auto_field()
     created_at = auto_field()
     updated_at = auto_field()
-    users = fields.List(fields.Nested(lambda: UserSchema(only=("id", "username"))))
+    users = fields.List(fields.Nested(lambda: UserSchema(only=("id", "username"))), dump_only=True)
 
 
 class UserSchema(SQLAlchemySchema):
@@ -30,4 +30,4 @@ class UserSchema(SQLAlchemySchema):
     id = auto_field()
     username = auto_field()
     created_at = auto_field()
-    tasks = fields.List(fields.Nested(lambda: TaskSchema(only=("id", "title", "status"))))
+    tasks = fields.List(fields.Nested(lambda: TaskSchema(only=("id", "title", "status"))), dump_only=True)

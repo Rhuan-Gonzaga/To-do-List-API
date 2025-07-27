@@ -6,7 +6,7 @@ from datetime import datetime
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 tasks_bp = Blueprint('tasks', __name__)
-tasks_schema = TaskSchema()
+task_schema = TaskSchema()
 tasks_schema = TaskSchema(many=True)
 
 
@@ -23,6 +23,25 @@ def get_tasks():
 
     tasks = user.tasks
     return jsonify(tasks_schema.dump(tasks))
+
+#get user task by id
+@tasks_bp.route('/<int:id>', methods=['GET'])
+@jwt_required()
+def get_tasks_id(id):
+
+    user_id = get_jwt_identity()
+   
+
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'message': 'Usuário não encontrado'}), 404
+
+    tasks = Task.query.join(Task.users).filter(Task.id == id, User.id == user_id).first()
+    
+    if not tasks:
+        return jsonify({'message': 'Tarefa não encontrada ou não pertence a este usuário'}), 404
+   
+    return jsonify(task_schema.dump(tasks)), 200
 
 #create tasks
 @tasks_bp.route('/create', methods=['POST'])
@@ -53,3 +72,26 @@ def create_task():
     db.session.commit()
 
     return jsonify({'message': 'Tarefa criada com sucesso'}), 201
+
+@tasks_bp.route('/update/<int:id>', methods=['PUT'])
+@jwt_required()
+def update_task(id):
+    user_id = get_jwt_identity()
+    data = request.json
+
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'message': 'Usuário não encontrado'}), 404
+
+    task = Task.query.join(Task.users).filter(Task.id == id, User.id == user_id).first()
+    if not task:
+        return jsonify({'message': 'Tarefa não encontrada ou não pertence a este usuário'}), 404
+    
+    task.title = data.get('title', task.title)
+    task.description = data.get('description', task.description)
+    task.status = data.get('status', task.status)
+
+    db.session.commit()
+    return jsonify({'message': 'Tarefa atualizada'}), 200
+
+   
