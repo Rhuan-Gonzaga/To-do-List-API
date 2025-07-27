@@ -43,6 +43,29 @@ def get_tasks_id(id):
    
     return jsonify(task_schema.dump(tasks)), 200
 
+
+#get user task by status
+@tasks_bp.route('/status/<string:status>', methods=['GET'])
+@jwt_required()
+def get_tasks_status(status):
+
+    user_id = get_jwt_identity()
+   
+    status_permitidos = ['pendente', 'em andamento', 'concluída']
+    if status not in status_permitidos:
+        return jsonify({'message': 'Status inválido. Use: pendente, em andamento ou concluída.'}), 400
+    
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'message': 'Usuário não encontrado'}), 404
+
+    tasks = Task.query.join(Task.users).filter(Task.status == status, User.id == user_id).all()
+    
+    if not tasks:
+        return jsonify({'message': 'Tarefa não encontrada ou não pertence a este usuário'}), 404
+   
+    return jsonify(tasks_schema.dump(tasks)), 200
+
 #create tasks
 @tasks_bp.route('/create', methods=['POST'])
 @jwt_required()
