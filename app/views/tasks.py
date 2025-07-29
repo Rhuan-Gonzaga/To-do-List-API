@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from app.models import Task, User
 from app.schemas import TaskSchema
 from app import db
-from datetime import datetime
+from datetime import datetime, timezone
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 tasks_bp = Blueprint('tasks', __name__)
@@ -17,7 +17,7 @@ def get_tasks():
     #data = request.get_json()
     id = get_jwt_identity()
 
-    user = User.query.get(id)
+    user = db.session.get(User, id)
     if not user:
         return jsonify({'message': 'Usuário não encontrado'}), 404
 
@@ -32,7 +32,7 @@ def get_tasks_id(id):
     user_id = get_jwt_identity()
    
 
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return jsonify({'message': 'Usuário não encontrado'}), 404
 
@@ -55,7 +55,7 @@ def get_tasks_status(status):
     if status not in status_permitidos:
         return jsonify({'message': 'Status inválido. Use: pendente, em andamento ou concluída.'}), 400
     
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return jsonify({'message': 'Usuário não encontrado'}), 404
 
@@ -81,10 +81,10 @@ def create_task():
         title = data['title'],
         description=data.get('description'),
         status=data.get('status', 'pendente'),
-        created_at=datetime.utcnow()
+        created_at=datetime.now(timezone.utc)
     )
 
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return jsonify({'message': 'Usuário não encontrado'}), 404
     
@@ -102,7 +102,7 @@ def update_task(id):
     user_id = get_jwt_identity()
     data = request.json
 
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return jsonify({'message': 'Usuário não encontrado'}), 404
 
@@ -122,7 +122,7 @@ def update_task(id):
 def delete_task(id):
     user_id = get_jwt_identity()
     
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return jsonify({'message': 'Usuário não encontrado'}), 404
 

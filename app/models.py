@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from app import db
 
 # Tabela associativa entre users e tasks
@@ -15,7 +15,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(512), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
 
     # Relacionamento com tarefas
     tasks = db.relationship(
@@ -32,8 +32,8 @@ class Task(db.Model):
     title = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text)
     status = db.Column(db.Enum('pendente', 'em andamento', 'concluída'), default='pendente')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     # Relacionamento com usuários
     users = db.relationship(

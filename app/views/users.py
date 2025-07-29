@@ -22,7 +22,7 @@ def create_user():
     db.session.add(user)
     db.session.commit()
     
-    return jsonify({"message": "Usuário cadastrado com sucesso!"})
+    return jsonify({"message": "Usuário cadastrado com sucesso!"}), 201
     
 @users_bp.route('/login', methods=['POST'])
 def login():
